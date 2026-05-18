@@ -1,2 +1,49 @@
 @import "tailwindcss";
 @import "@heroui/styles";
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #ffffff;
+  --background-secondary: #f7f9fc;
+  --foreground: #1a1a2e;
+  --primary: #0066cc;
+  --accent: #00b4d8;
+  --muted: #f3f4f6;
+  --muted-foreground: #9ca3af;
+}
+
+.dark {
+  --background: #0f1419;
+  --background-secondary: #1a202c;
+  --foreground: #f0f4f8;
+  --primary: #0080ff;
+  --accent: #00d9ff;
+  --muted: #252e3b;
+  --muted-foreground: #9ca3af;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+}
+
+@layer base {
+  button,
+  a {
+    @apply cursor-pointer;
+  }
+  html {
+    @apply bg-background;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.gradient-text {
+  @apply bg-linear-to-r from-primary to-accent bg-clip-text text-transparent;
+}
