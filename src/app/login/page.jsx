@@ -6,23 +6,40 @@ import { FaGoogle } from 'react-icons/fa';
 import Link from 'next/link';
 import { BsEyeSlash } from 'react-icons/bs';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
+import { errorToast, successToast } from '@/helpers/AllToast';
+import { useAuthActions } from '@/hooks/authActions';
 
 const LoginPage = () => {
     const [submitting, setSubmitting] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const router = useRouter();
+    const { loginUser, socialSignIn } = useAuthActions();
 
 
     const {
         register,
         handleSubmit,
         formState: { errors },
-        getValues
     } = useForm()
 
-    const onSubmit = (data) => {
-        console.log(data);
+    const onSubmit = async (formData) => {
         setSubmitting(true);
+        const { data, error } = await loginUser(formData);
+        setSubmitting(false);
+        if (error) {
+            errorToast("Sign-In Failed", error?.message || "An error occurred while signing in. Please try again.");
+            return;
+        }
+        if (data) {
+            successToast("Sign-In Successful", "You have been successfully signed in.");
+            router.push("/");
+        }
     }
+    const handleSocialSignIn = async (provider) => {
+        const data = await socialSignIn(provider);
+    };
+
 
 
     return (
@@ -56,7 +73,7 @@ const LoginPage = () => {
                                 />
                                 <input
                                     type="email"
-                                    {...register("email", { required: { value: true, message: "Email is required" }, pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Invalid email format" } })}
+                                    {...register("email", { required: { value: true, message: "Email is required" }, pattern: { value: /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/, message: "Invalid email format" } })}
                                     placeholder="you@example.com"
                                     className={`bg-background py-3 pr-4 pl-12 border-2 ${errors.email ? 'border-error' : 'border-border'} focus:border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary w-full transition-all`}
                                 />
@@ -116,7 +133,7 @@ const LoginPage = () => {
                             className="flex justify-between items-center text-sm"
                         >
                             <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" className="rounded w-4 h-4" />
+                                <input type="checkbox" className="rounded w-4 h-4" {...register("rememberMe")} />
                                 <span className="text-text-secondary">Remember me</span>
                             </label>
                             <a href="#" className="font-semibold text-primary hover:text-primary-dark transition-colors">

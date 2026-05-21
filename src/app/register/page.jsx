@@ -7,12 +7,18 @@ import { FaGoogle } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { BsEyeSlash } from "react-icons/bs";
+import { successToast, errorToast } from "@/helpers/AllToast";
+import { useRouter } from "next/navigation";
+import { useAuthActions } from "@/hooks/authActions";
 
 
 const RegisterPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const router = useRouter();
+    const { registerUser, socialSignIn } = useAuthActions();
+
 
     const {
         register,
@@ -21,9 +27,33 @@ const RegisterPage = () => {
         getValues
     } = useForm()
 
-    const onSubmit = (data) => {
-        console.log(data);
+    const onSubmit = async (formData) => {
+        setSubmitting(true);
+        const { data, error } = await registerUser(formData);
+        setSubmitting(false);
+        if (error) {
+            errorToast("Registration Failed", error?.message || "An error occurred while registering. Please try again.");
+            return;
+        }
+        if (data) {
+            successToast("Registration Successful", "Please login to continue using MediQueue.");
+            router.push("/login");
+
+        }
+
     }
+
+    const handleSocialSignIn = async (provider) => {
+        const data = await socialSignIn(provider);
+        // these don't work as the data is given to me at the time of calling the above method
+        // if (data) {
+        //     console.log(data);
+        //     successToast(`${provider}, Sign-In Successful`, "You have been successfully signed in.");
+        // }
+        // infoToast("tried login using " + provider);
+
+
+    };
 
 
     return (
@@ -94,7 +124,7 @@ const RegisterPage = () => {
                                 />
                                 <input
                                     type="email"
-                                    {...register("email", { required: { value: true, message: "Email is required" }, pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Invalid email format" } })}
+                                    {...register("email", { required: { value: true, message: "Email is required" }, pattern: { value: /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/, message: "Invalid email format" } })}
                                     placeholder="you@example.com"
                                     className={`bg-background py-3 pr-4 pl-12 border-2 ${errors.email ? 'border-error' : 'border-border'} focus:border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary w-full transition-all`}
                                 />
@@ -238,6 +268,7 @@ const RegisterPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.45 }}
                         className="group flex justify-center items-center gap-3 hover:bg-muted py-3 border-2 border-border hover:border-primary rounded-lg w-full font-semibold text-foreground transition-all"
+                        onClick={() => handleSocialSignIn('google')}
                     >
                         <FaGoogle
                             className="group-hover:text-primary transition-colors"
