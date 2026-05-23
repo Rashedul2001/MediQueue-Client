@@ -210,6 +210,12 @@
     @apply bg-background text-foreground;
   }
 }
+.active-desk {
+  @apply rounded-md bg-linear-to-t from-primary-light to-transparent;
+}
+.active-mob {
+  @apply border-b-4 border-primary  bg-linear-to-r from-primary-light to-transparent;
+}
 
 .gradient-text {
   @apply bg-linear-to-r from-primary to-accent bg-clip-text text-transparent;
